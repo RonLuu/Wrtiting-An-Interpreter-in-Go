@@ -23,7 +23,7 @@ func NewToken(tokenType token.TokenType, tokenLiteral byte) token.Token {
 	return token.Token{Type: tokenType, Literal: string(tokenLiteral)}
 }
 
-// A function to read the next character of a lexer
+// A function to read the current character of a lexer and move on
 func (l *Lexer) ReadChar() {
 	if l.nextIndex >= len(l.input) {
 		l.curChar = 0
