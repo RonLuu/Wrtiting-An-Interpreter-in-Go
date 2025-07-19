@@ -15,6 +15,13 @@ x + y;
 let result = add(five, ten);
 !-/*5;
 5 < 10 > 5;
+if (5 < 10) {
+return true;
+} else {
+return false;
+}
+10 == 10;
+10 != 9;
 `
 
 	// The test should check as followed
@@ -65,9 +72,9 @@ let result = add(five, ten);
 		{token.SEMICOLON, ";"},
 
 		{token.EXCLAMATION, "!"},
-		{token.DASH, "-"},
-		{token.SLASH, "/"},
-		{token.ASTERISK, "*"},
+		{token.MINUS, "-"},
+		{token.DIV, "/"},
+		{token.MULT, "*"},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
 
@@ -76,6 +83,34 @@ let result = add(five, ten);
 		{token.INT, "10"},
 		{token.GT, ">"},
 		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+
+		{token.IF, "if"},
+		{token.RLBRACKET, "("},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.RRBRACKET, ")"},
+		{token.PLBRACKET, "{"},
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.SEMICOLON, ";"},
+		{token.PRBRACKET, "}"},
+		{token.ELSE, "else"},
+		{token.PLBRACKET, "{"},
+		{token.RETURN, "return"},
+		{token.FALSE, "false"},
+		{token.SEMICOLON, ";"},
+		{token.PRBRACKET, "}"},
+
+		{token.INT, "10"},
+		{token.EQ, "=="},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+
+		{token.INT, "10"},
+		{token.NEQ, "!="},
+		{token.INT, "9"},
 		{token.SEMICOLON, ";"},
 
 		{token.EOF, ""},

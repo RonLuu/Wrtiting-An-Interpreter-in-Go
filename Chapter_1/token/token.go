@@ -1,8 +1,13 @@
 package token
 
 var Keywords = map[string]TokenType{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"if":     IF,
+	"else":   ELSE,
+	"true":   TRUE,
+	"false":  FALSE,
+	"return": RETURN,
 }
 
 func LookUpVariable(variable string) TokenType {
@@ -34,6 +39,12 @@ const (
 	MULT   = "*"
 	DIV    = "/"
 	ASSIGN = "="
+	LT     = "<"
+	GT     = ">"
+	EQ     = "=="
+	NEQ    = "!="
+
+	EXCLAMATION = "!"
 
 	// Delimiter
 	COMMA     = ","
@@ -50,4 +61,10 @@ const (
 	// Keywords
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	IFElSE   = "IFELSE"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	RETURN   = "RETURN"
 )

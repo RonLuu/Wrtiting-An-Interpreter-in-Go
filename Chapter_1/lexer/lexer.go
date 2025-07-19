@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"Chapter_1/token"
+	// "fmt"
 )
 
 type Lexer struct {
@@ -34,6 +35,14 @@ func (l *Lexer) ReadChar() {
 	l.nextIndex += 1
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.nextIndex >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.nextIndex]
+	}
+}
+
 // A function to
 // return the token of the current character of a lexer
 // advance to the next character
@@ -41,26 +50,52 @@ func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 	l.SkipWhiteSpace()
 	switch l.curChar {
-	case '=':
-		tok = NewToken(token.ASSIGN, l.curChar)
 	case '+':
 		tok = NewToken(token.PLUS, l.curChar)
-	case '(':
-		tok = NewToken(token.RLBRACKET, l.curChar)
-	case ')':
-		tok = NewToken(token.RRBRACKET, l.curChar)
-	case '[':
-		tok = NewToken(token.SLBRACKET, l.curChar)
-	case ']':
-		tok = NewToken(token.SRBRACKET, l.curChar)
-	case '{':
-		tok = NewToken(token.PLBRACKET, l.curChar)
-	case '}':
-		tok = NewToken(token.PRBRACKET, l.curChar)
+	case '-':
+		tok = NewToken(token.MINUS, l.curChar)
+	case '*':
+		tok = NewToken(token.MULT, l.curChar)
+	case '/':
+		tok = NewToken(token.DIV, l.curChar)
+	case '=':
+		if l.peekChar() == '=' {
+			firstEq := l.curChar
+			l.ReadChar()
+			secondEq := l.curChar
+			tok = token.Token{Type: token.EQ, Literal: string(firstEq) + string(secondEq)}
+		} else {
+			tok = NewToken(token.ASSIGN, l.curChar)
+		}
+	case '<':
+		tok = NewToken(token.LT, l.curChar)
+	case '>':
+		tok = NewToken(token.GT, l.curChar)
+	case '!':
+		if l.peekChar() == '=' {
+			firstNot := l.curChar
+			l.ReadChar()
+			secondEq := l.curChar
+			tok = token.Token{Type: token.NEQ, Literal: string(firstNot) + string(secondEq)}
+		} else {
+			tok = NewToken(token.EXCLAMATION, l.curChar)
+		}
 	case ',':
 		tok = NewToken(token.COMMA, l.curChar)
 	case ';':
 		tok = NewToken(token.SEMICOLON, l.curChar)
+	case '[':
+		tok = NewToken(token.SLBRACKET, l.curChar)
+	case ']':
+		tok = NewToken(token.SRBRACKET, l.curChar)
+	case '(':
+		tok = NewToken(token.RLBRACKET, l.curChar)
+	case ')':
+		tok = NewToken(token.RRBRACKET, l.curChar)
+	case '{':
+		tok = NewToken(token.PLBRACKET, l.curChar)
+	case '}':
+		tok = NewToken(token.PRBRACKET, l.curChar)
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
