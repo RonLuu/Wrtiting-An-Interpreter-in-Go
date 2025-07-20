@@ -20,12 +20,9 @@ type Program struct {
 	Statements []Statement
 }
 
-func (program *Program) TokenLiteral() string {
-	if len(program.Statements) > 0 {
-		return program.Statements[0].TokenLiteral()
-	} else {
-		return ""
-	}
+type Variable struct {
+	Token token.Token // The VARIABLE token
+	Value string
 }
 
 type LetStatement struct {
@@ -34,13 +31,24 @@ type LetStatement struct {
 	Expression Expression
 }
 
+type ReturnStatement struct {
+	Token       token.Token // The RETURN token
+	ReturnValue Expression
+}
+
+func (program *Program) TokenLiteral() string {
+	if len(program.Statements) > 0 {
+		return program.Statements[0].TokenLiteral()
+	} else {
+		return ""
+	}
+}
+
 func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 
-type Variable struct {
-	Token token.Token // The VARIABLE token
-	Value string
-}
+func (rs *ReturnStatement) statementNode()       {}
+func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
 
 func (variable *Variable) expressionNode()      {}
 func (variable *Variable) TokenLiteral() string { return variable.Token.Literal }

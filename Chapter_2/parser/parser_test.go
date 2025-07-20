@@ -9,8 +9,8 @@ import (
 func TestLetStatements(t *testing.T) {
 	input := `
 let x = 5;
-let y =;
-let 838383;
+let y = 10;
+let foobar = 838383;
 `
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
@@ -68,7 +68,7 @@ func testLetStatement(t *testing.T, stmt ast.Statement, expectedVariable string)
 		return false
 	}
 
-	if letStmt.Variable.TokenLiteral() != expectedVariable {
+	if letStmt.Variable.Value != expectedVariable {
 		t.Errorf("letStmt.Variable.Value not '%s'. got = %s", expectedVariable, letStmt.Variable.Value)
 		return false
 	}
