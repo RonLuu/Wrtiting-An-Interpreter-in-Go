@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"Chapter_2/token"
+	"fmt"
 )
 
 type Lexer struct {
@@ -16,6 +17,11 @@ func NewLexer(input string) *Lexer {
 	l := &Lexer{input: input}
 	l.readChar()
 	return l
+}
+
+// Debug function
+func (lexer *Lexer) PrintLexer() {
+	fmt.Printf("Lexer:\ninput: \"%s\"\ncurIndex: %d\nnextIndex: %d\ncurChar: %c\n", lexer.input, lexer.curIndex, lexer.nextIndex, lexer.curChar)
 }
 
 // A function a new token

@@ -1,5 +1,7 @@
 package token
 
+import "fmt"
+
 var Keywords = map[string]TokenType{
 	"fn":     FUNCTION,
 	"let":    LET,
@@ -8,6 +10,10 @@ var Keywords = map[string]TokenType{
 	"true":   TRUE,
 	"false":  FALSE,
 	"return": RETURN,
+}
+
+func (token *Token) PrintToken() {
+	fmt.Printf("Token:\nType: %s\nLiteral: %s\n", token.Type, token.Literal)
 }
 
 func LookUpVariable(variable string) TokenType {
