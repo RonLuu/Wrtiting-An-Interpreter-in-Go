@@ -14,7 +14,7 @@ type Lexer struct {
 // A function a new lexer
 func NewLexer(input string) *Lexer {
 	l := &Lexer{input: input}
-	l.ReadChar()
+	l.readChar()
 	return l
 }
 
@@ -24,7 +24,7 @@ func NewToken(tokenType token.TokenType, tokenLiteral byte) token.Token {
 }
 
 // A function to read the current character of a lexer and move on
-func (l *Lexer) ReadChar() {
+func (l *Lexer) readChar() {
 	if l.nextIndex >= len(l.input) {
 		l.curChar = 0
 	} else {
@@ -34,7 +34,7 @@ func (l *Lexer) ReadChar() {
 	l.nextIndex += 1
 }
 
-func (l *Lexer) PeekChar() byte {
+func (l *Lexer) peekChar() byte {
 	if l.nextIndex >= len(l.input) {
 		return 0
 	} else {
@@ -47,7 +47,7 @@ func (l *Lexer) PeekChar() byte {
 // advance to the next character
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
-	l.SkipWhiteSpace()
+	l.skipWhiteSpace()
 	switch l.curChar {
 	case '+':
 		tok = NewToken(token.PLUS, l.curChar)
@@ -58,9 +58,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '/':
 		tok = NewToken(token.DIV, l.curChar)
 	case '=':
-		if l.PeekChar() == '=' {
+		if l.peekChar() == '=' {
 			firstEq := l.curChar
-			l.ReadChar()
+			l.readChar()
 			secondEq := l.curChar
 			tok = token.Token{Type: token.EQ, Literal: string(firstEq) + string(secondEq)}
 		} else {
@@ -71,9 +71,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '>':
 		tok = NewToken(token.GT, l.curChar)
 	case '!':
-		if l.PeekChar() == '=' {
+		if l.peekChar() == '=' {
 			firstNot := l.curChar
-			l.ReadChar()
+			l.readChar()
 			secondEq := l.curChar
 			tok = token.Token{Type: token.NEQ, Literal: string(firstNot) + string(secondEq)}
 		} else {
@@ -99,48 +99,48 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Literal = ""
 		tok.Type = token.EOF
 	default:
-		if IsLetter(l.curChar) {
-			tok.Literal = l.ReadVaraible()
+		if isLetter(l.curChar) {
+			tok.Literal = l.readVariable()
 			tok.Type = token.LookUpVariable(tok.Literal)
 			return tok
-		} else if IsDigit(l.curChar) {
-			tok.Literal = l.ReadNumber()
+		} else if isDigit(l.curChar) {
+			tok.Literal = l.readNumber()
 			tok.Type = token.INT
 			return tok
 		} else {
 			tok = NewToken(token.ILLEGAL, l.curChar)
 		}
 	}
-	l.ReadChar()
+	l.readChar()
 	return tok
 }
 
-func (l *Lexer) SkipWhiteSpace() {
+func (l *Lexer) skipWhiteSpace() {
 	for l.curChar == ' ' || l.curChar == '\t' || l.curChar == '\n' || l.curChar == '\r' {
-		l.ReadChar()
+		l.readChar()
 	}
 }
 
-func IsLetter(curChar byte) bool {
+func isLetter(curChar byte) bool {
 	return ('a' <= curChar && curChar <= 'z') || ('A' <= curChar && curChar <= 'Z') || curChar == '_'
 }
 
-func (l *Lexer) ReadVaraible() string {
+func (l *Lexer) readVariable() string {
 	startIndex := l.curIndex
-	for IsLetter(l.curChar) {
-		l.ReadChar()
+	for isLetter(l.curChar) {
+		l.readChar()
 	}
 	return l.input[startIndex:l.curIndex]
 }
 
-func IsDigit(curChar byte) bool {
+func isDigit(curChar byte) bool {
 	return '0' <= curChar && curChar <= '9'
 }
 
-func (l *Lexer) ReadNumber() string {
+func (l *Lexer) readNumber() string {
 	startIndex := l.curIndex
-	for IsDigit(l.curChar) {
-		l.ReadChar()
+	for isDigit(l.curChar) {
+		l.readChar()
 	}
 	return l.input[startIndex:l.curIndex]
 }
