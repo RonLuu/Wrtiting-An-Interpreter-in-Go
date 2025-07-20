@@ -34,7 +34,7 @@ func (l *Lexer) ReadChar() {
 	l.nextIndex += 1
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) PeekChar() byte {
 	if l.nextIndex >= len(l.input) {
 		return 0
 	} else {
@@ -58,7 +58,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '/':
 		tok = NewToken(token.DIV, l.curChar)
 	case '=':
-		if l.peekChar() == '=' {
+		if l.PeekChar() == '=' {
 			firstEq := l.curChar
 			l.ReadChar()
 			secondEq := l.curChar
@@ -71,7 +71,7 @@ func (l *Lexer) NextToken() token.Token {
 	case '>':
 		tok = NewToken(token.GT, l.curChar)
 	case '!':
-		if l.peekChar() == '=' {
+		if l.PeekChar() == '=' {
 			firstNot := l.curChar
 			l.ReadChar()
 			secondEq := l.curChar
