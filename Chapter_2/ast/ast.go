@@ -8,12 +8,12 @@ type Node interface {
 
 type Statement interface {
 	Node
-	StatementNode()
+	statementNode()
 }
 
 type Expression interface {
 	Node
-	ExpressionNode()
+	expressionNode()
 }
 
 type Program struct {
@@ -34,7 +34,7 @@ type LetStatement struct {
 	Expression Expression
 }
 
-func (ls *LetStatement) StatementNode()       {}
+func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 
 type Variable struct {
@@ -42,5 +42,5 @@ type Variable struct {
 	Value string
 }
 
-func (variable *Variable) ExpressionNode()      {}
+func (variable *Variable) expressionNode()      {}
 func (variable *Variable) TokenLiteral() string { return variable.Token.Literal }
