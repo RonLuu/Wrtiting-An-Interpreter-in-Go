@@ -7,6 +7,10 @@ import (
 	"fmt"
 )
 
+// A parser must
+// need a lexer to read the token
+// remember the current token and the next token
+// contain all types of error when reading the program
 type Parser struct {
 	lexer     *lexer.Lexer
 	curToken  token.Token
@@ -39,12 +43,12 @@ func (p *Parser) nextToken() {
 func (p *Parser) ParseProgram() *ast.Program {
 	// Initialise a program
 	program := &ast.Program{}
-	// Initialise all the statements in the program
+	// Initialise the statements in the program
 	program.Statements = []ast.Statement{}
 
 	// While we haven't reached the EOF token
 	for p.curToken.Type != token.EOF {
-		// Get the current 'statement'
+		// Read the current 'statement'
 		stmt := p.parseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -73,8 +77,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	if !p.expectPeek(token.VARIABLE) {
 		return nil
 	}
-
-	stmt.Variable = &ast.Variable{Token: p.curToken, Value: p.curToken.Literal}
+	// Set the variable for the Let Statment
+	stmt.Variable = &ast.Variable{Token: p.curToken, Literal: p.curToken.Literal}
 
 	// Check if the next token is a ASSIGN token
 	if !p.expectPeek(token.ASSIGN) {
@@ -91,7 +95,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	stmt := &ast.ReturnStatement{Token: p.curToken}
-
+	// Skip over the Return token
 	p.nextToken()
 
 	for !p.curTokenIs(token.SEMICOLON) {
@@ -100,6 +104,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	return stmt
 }
+
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
 }
@@ -108,6 +113,9 @@ func (p *Parser) peekTokenIs(t token.TokenType) bool {
 	return p.peekToken.Type == t
 }
 
+// If the token is as expected
+// Return True and move on
+// Else return False and add on Error
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()

@@ -12,9 +12,11 @@ let x = 5;
 let y = 10;
 let foobar = 838383;
 `
+	// Create a lexer for the Parser to use
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
 
+	// The parser reads the program
 	program := p.ParseProgram()
 	checkParserErrors(t, p)
 	if program == nil {
@@ -53,8 +55,8 @@ func testLetStatement(t *testing.T, stmt ast.Statement, expectedVariable string)
 		return false
 	}
 
-	if letStmt.Variable.Value != expectedVariable {
-		t.Errorf("letStmt.Variable.Value not '%s'. got = %s", expectedVariable, letStmt.Variable.Value)
+	if letStmt.Variable.Literal != expectedVariable {
+		t.Errorf("letStmt.Variable.Value not '%s'. got = %s", expectedVariable, letStmt.Variable.Literal)
 		return false
 	}
 
