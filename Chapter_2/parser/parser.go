@@ -5,6 +5,7 @@ import (
 	"Chapter_2/lexer"
 	"Chapter_2/token"
 	"fmt"
+	"strconv"
 )
 
 type (
@@ -58,6 +59,7 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.prefixParseFn = make(map[token.TokenType]prefixParseFn)
 	// Add an entry for the prefix-parse-function dictionary
 	p.registerPrefix(token.VARIABLE, p.parseVariable)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	// Initialise a prefix-parse-function dictionary
 	p.infixParseFn = make(map[token.TokenType]infixParseFn)
 
@@ -74,6 +76,21 @@ func (p *Parser) parseVariable() ast.Expression {
 	return &ast.Variable{Token: p.curToken, Literal: p.curToken.Literal}
 }
 
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	literal := &ast.IntegerLiteral{Token: p.curToken}
+	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
+
+	if err != nil {
+		msg := fmt.Sprintf("could not parse %q as integer", p.curToken.Literal)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	literal.Value = value
+
+	return literal
+}
+
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFn[tokenType] = fn
 }
@@ -81,6 +98,7 @@ func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFn[tokenType] = fn
 }
+
 func (p *Parser) ParseProgram() *ast.Program {
 	// Initialise a program
 	program := &ast.Program{}
@@ -174,6 +192,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	return leftExp
 }
+
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
 }
