@@ -29,9 +29,18 @@ type Variable struct {
 	Literal string
 }
 
-func (variable *Variable) expressionNode()      {}
 func (variable *Variable) TokenLiteral() string { return variable.Token.Literal }
 func (variable *Variable) String() string       { return variable.Literal }
+func (variable *Variable) expressionNode()      {}
+
+type IntegerLiteral struct {
+	Token token.Token // The Integer token
+	Value int64
+}
+
+func (integerLiteral *IntegerLiteral) TokenLiteral() string { return integerLiteral.Token.Literal }
+func (integerLiteral *IntegerLiteral) String() string       { return integerLiteral.Token.Literal }
+func (integerLiteral *IntegerLiteral) expressionNode()      {}
 
 // A LetStatment is a type of Statement
 type LetStatement struct {
