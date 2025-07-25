@@ -139,11 +139,50 @@ func TestVariableExpression(t *testing.T) {
 	}
 
 	if variable.Literal != "foobar" {
-		t.Errorf("ident.Value not %s. got=%s", "foobar", variable.Literal)
+		t.Errorf("variable.Literal not %s. got=%s", "foobar", variable.Literal)
 	}
 
 	if variable.TokenLiteral() != "foobar" {
-		t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", variable.TokenLiteral())
+		t.Errorf("variable.TokenLiteral not %s. got=%s", "foobar", variable.TokenLiteral())
+	}
+
+}
+
+func TestIntegerLiteralExpression(t *testing.T) {
+	input := "5;"
+
+	// Create a lexer for the Parser to use
+	l := lexer.NewLexer(input)
+	parser := NewParser(l)
+
+	// The parser reads the program
+	program := parser.ParseProgram()
+
+	// Check if there's any error after the parsing
+	checkParserErrors(t, parser)
+
+	// Check if the parser doesn't read correctly one statment
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements has not enough statements. got = %d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not a ast.ExpressionStatement. got = %T", program.Statements[0])
+	}
+
+	literal, ok := stmt.Expression.(*ast.IntegerLiteral)
+	if !ok {
+		t.Fatalf("stmt.Expression is not a ast.IntegerLiteral. got = %T", stmt.Expression)
+	}
+
+	if literal.Value != 5 {
+		t.Errorf("literal.Value not %d. got=%s", 5, literal.Value)
+	}
+
+	if literal.TokenLiteral() != "5" {
+		t.Errorf("literal.TokenLiteral not %s. got=%s", "5", literal.TokenLiteral())
 	}
 
 }
