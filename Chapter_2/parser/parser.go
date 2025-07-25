@@ -7,15 +7,36 @@ import (
 	"fmt"
 )
 
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
+// PRECEDENCE FOR OPERATION
+const (
+	_ int = iota
+	LOWEST
+	EQUALS      // ==
+	LESSGREATER // > or <
+	SUM         // +
+	PRODUCT     // *
+	PREFIX      // -X or !X
+	CALL        // myFunction(X)
+)
+
 // A parser must
 // need a lexer to read the token
 // remember the current token and the next token
 // contain all types of error when reading the program
+// contain a prefix-parser-function dictionary
+// contain a infix- parser-function dictionary
 type Parser struct {
-	lexer     *lexer.Lexer
-	curToken  token.Token
-	peekToken token.Token
-	errors    []string
+	lexer         *lexer.Lexer
+	curToken      token.Token
+	peekToken     token.Token
+	errors        []string
+	prefixParseFn map[token.TokenType]prefixParseFn
+	infixParseFn  map[token.TokenType]infixParseFn
 }
 
 // Debug function
@@ -26,20 +47,40 @@ func (p *Parser) PrintParser() {
 	p.peekToken.PrintToken()
 }
 
+// Create a new parser
 func NewParser(l *lexer.Lexer) *Parser {
 	p := &Parser{lexer: l, errors: []string{}}
 	// Set the current token
 	p.nextToken()
 	// Set the peek token
 	p.nextToken()
+	// Initialise a prefix-parse-function dictionary
+	p.prefixParseFn = make(map[token.TokenType]prefixParseFn)
+	// Add an entry for the prefix-parse-function dictionary
+	p.registerPrefix(token.VARIABLE, p.parseVariable)
+	// Initialise a prefix-parse-function dictionary
+	p.infixParseFn = make(map[token.TokenType]infixParseFn)
+
 	return p
 }
 
+// A function to move on to the next token
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.lexer.NextToken()
 }
 
+func (p *Parser) parseVariable() ast.Expression {
+	return &ast.Variable{Token: p.curToken, Literal: p.curToken.Literal}
+}
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFn[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFn[tokenType] = fn
+}
 func (p *Parser) ParseProgram() *ast.Program {
 	// Initialise a program
 	program := &ast.Program{}
@@ -67,16 +108,19 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
 func (p *Parser) parseLetStatement() *ast.LetStatement {
+	// Set the current token of the parser on the current statement
 	stmt := &ast.LetStatement{Token: p.curToken}
+
 	// Check if the next token is a VARIABLE token
 	if !p.expectPeek(token.VARIABLE) {
 		return nil
 	}
+
 	// Set the variable for the Let Statment
 	stmt.Variable = &ast.Variable{Token: p.curToken, Literal: p.curToken.Literal}
 
@@ -98,6 +142,8 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	// Skip over the Return token
 	p.nextToken()
 
+	// TODO: We're skipping the expressions until we
+	// encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
@@ -105,6 +151,29 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.curToken}
+
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFn[p.curToken.Type]
+
+	if prefix == nil {
+		return nil
+	}
+
+	leftExp := prefix()
+
+	return leftExp
+}
 func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.curToken.Type == t
 }

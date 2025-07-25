@@ -18,11 +18,14 @@ let foobar = 838383;
 
 	// The parser reads the program
 	program := p.ParseProgram()
+	// Check if there's any error after the parsing
 	checkParserErrors(t, p)
+
 	if program == nil {
 		t.Fatalf("ParseProgram() return nil")
 	}
 
+	// Check if the parser doesn't read correctly three statments
 	if len(program.Statements) != 3 {
 		t.Fatalf("program.Statements does not contain 3 statements. got = %d", len(program.Statements))
 	}
@@ -35,6 +38,7 @@ let foobar = 838383;
 		{"foobar"},
 	}
 
+	// Test if the parser read three variable correctly in let inputs
 	for i, tt := range tests {
 		stmt := program.Statements[i]
 		if !testLetStatement(t, stmt, tt.expectedVariable) {
@@ -44,6 +48,7 @@ let foobar = 838383;
 }
 
 func testLetStatement(t *testing.T, stmt ast.Statement, expectedVariable string) bool {
+	// If the statement token is not 'let'
 	if stmt.TokenLiteral() != "let" {
 		t.Errorf("s.TokenLiteral not 'let'. got = %q", stmt.TokenLiteral())
 		return false
@@ -55,11 +60,13 @@ func testLetStatement(t *testing.T, stmt ast.Statement, expectedVariable string)
 		return false
 	}
 
+	// If the variable in the let statement is not the expected variable
 	if letStmt.Variable.Literal != expectedVariable {
-		t.Errorf("letStmt.Variable.Value not '%s'. got = %s", expectedVariable, letStmt.Variable.Literal)
+		t.Errorf("letStmt.Variable.Literal not '%s'. got = %s", expectedVariable, letStmt.Variable.Literal)
 		return false
 	}
 
+	// If the variable in the let statement is not the expected variable
 	if letStmt.Variable.TokenLiteral() != expectedVariable {
 		t.Errorf("letStmt.Variable not '%s'. got = %s", expectedVariable, letStmt.Variable)
 		return false
@@ -73,23 +80,20 @@ return 5;
 return 10;
 return 993322;
 `
+	// Create a lexer for the Parser to use
 	l := lexer.NewLexer(input)
 	p := NewParser(l)
 
+	// The parser reads the program
 	program := p.ParseProgram()
+
+	// Check if there's any error after the parsing
 	checkParserErrors(t, p)
 
+	// Check if the parser doesn't read correctly three statments
 	if len(program.Statements) != 3 {
 		t.Fatalf("program.Statements does not contain 3 statements. got = %d", len(program.Statements))
 	}
-
-	// tests := []struct {
-	// 	expectedVariable string
-	// }{
-	// 	{"x"},
-	// 	{"y"},
-	// 	{"foobar"},
-	// }
 
 	for _, stmt := range program.Statements {
 		returnStmt, ok := stmt.(*ast.ReturnStatement)
@@ -105,6 +109,44 @@ return 993322;
 	}
 }
 
+func TestVariableExpression(t *testing.T) {
+	input := "foobar;"
+
+	// Create a lexer for the Parser to use
+	l := lexer.NewLexer(input)
+	parser := NewParser(l)
+
+	// The parser reads the program
+	program := parser.ParseProgram()
+
+	// Check if there's any error after the parsing
+	checkParserErrors(t, parser)
+
+	// Check if the parser doesn't read correctly one statment
+	if len(program.Statements) != 1 {
+		t.Fatalf("program.Statements has not enough statements. got = %d", len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not a ast.ExpressionStatement. got = %T", program.Statements[0])
+	}
+
+	variable, ok := stmt.Expression.(*ast.Variable)
+	if !ok {
+		t.Fatalf("stmt.Expression is not a ast.Variable. got = %T", stmt.Expression)
+	}
+
+	if variable.Literal != "foobar" {
+		t.Errorf("ident.Value not %s. got=%s", "foobar", variable.Literal)
+	}
+
+	if variable.TokenLiteral() != "foobar" {
+		t.Errorf("ident.TokenLiteral not %s. got=%s", "foobar", variable.TokenLiteral())
+	}
+
+}
 func checkParserErrors(t *testing.T, p *Parser) {
 	errors := p.Errors()
 	if len(errors) == 0 {
