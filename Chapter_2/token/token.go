@@ -72,8 +72,8 @@ func (token *Token) PrintToken() {
 
 // A function to look up all the current keyword and return tokentype
 // return token VARIABLE if not a keyword
-func LookUpVariable(variable string) TokenType {
-	if tok, ok := Keywords[variable]; ok {
+func LookUpKeyword(word string) TokenType {
+	if tok, ok := Keywords[word]; ok {
 		return tok
 	}
 	return VARIABLE
