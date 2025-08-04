@@ -9,8 +9,10 @@ import (
 )
 
 type (
+	// Prefix parse function is a function that return an expression
 	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
+	// Infix  parse function is a function that takes a left expression return a whole expression
+	infixParseFn func(ast.Expression) ast.Expression
 )
 
 // PRECEDENCE FOR OPERATION
@@ -25,19 +27,14 @@ const (
 	CALL        // myFunction(X)
 )
 
-// A parser must
-// need a lexer to read the token
-// remember the current token and the next token
-// contain all types of error when reading the program
-// contain a prefix-parser-function dictionary
-// contain a infix- parser-function dictionary
 type Parser struct {
-	lexer         *lexer.Lexer
-	curToken      token.Token
-	peekToken     token.Token
-	errors        []string
-	prefixParseFn map[token.TokenType]prefixParseFn
-	infixParseFn  map[token.TokenType]infixParseFn
+	// A parser must
+	lexer         *lexer.Lexer                      // need a lexer to read the token
+	curToken      token.Token                       // remember the current token
+	peekToken     token.Token                       // remember the next token
+	errors        []string                          // contain all types of error when reading the program
+	prefixParseFn map[token.TokenType]prefixParseFn // contain a prefix-parser-function dictionary
+	infixParseFn  map[token.TokenType]infixParseFn  // contain a infix- parser-function dictionary
 }
 
 // Debug function
@@ -57,9 +54,11 @@ func NewParser(l *lexer.Lexer) *Parser {
 	p.nextToken()
 	// Initialise a prefix-parse-function dictionary
 	p.prefixParseFn = make(map[token.TokenType]prefixParseFn)
-	// Add an entry for the prefix-parse-function dictionary
-	p.registerPrefix(token.VARIABLE, p.parseVariable)
-	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.VARIABLE, p.parseVariable)            // register a parse variable function
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)           // register a parse integer function
+	p.registerPrefix(token.EXCLAMATION, p.parsePrefixExpression) // register a parse 'not' function
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)       // register a parse 'negative' function
+
 	// Initialise a prefix-parse-function dictionary
 	p.infixParseFn = make(map[token.TokenType]infixParseFn)
 
@@ -89,6 +88,16 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	literal.Value = value
 
 	return literal
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	expression := &ast.PrefixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+	}
+	p.nextToken()
+	expression.Right = p.parseExpression(PREFIX)
+	return expression
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
@@ -182,15 +191,23 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// Get the current prefix operation
 	prefix := p.prefixParseFn[p.curToken.Type]
 
 	if prefix == nil {
+		p.noPrefixParseFnError(p.curToken.Type)
 		return nil
 	}
 
+	// Assign the prefix
 	leftExp := prefix()
 
 	return leftExp
+}
+
+func (p *Parser) noPrefixParseFnError(t token.TokenType) {
+	msg := fmt.Sprintf("no prefix parse function for %s found", t)
+	p.errors = append(p.errors, msg)
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {
