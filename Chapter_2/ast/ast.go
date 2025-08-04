@@ -1,21 +1,15 @@
 package ast
 
+// Data structure
 import (
 	"Chapter_2/token"
 	"bytes"
 )
 
 // A node can be a Statement or an Expression
-// A node must be able to return its literal
 type Node interface {
-	TokenLiteral() string
-	String() string
-}
-
-// A Statment is a type of node
-type Statement interface {
-	Node
-	statementNode()
+	TokenLiteral() string // A node must be able to return its token literal
+	String() string       // A node must have a string representation
 }
 
 // An Expression is a type of node
@@ -24,6 +18,7 @@ type Expression interface {
 	expressionNode()
 }
 
+// Variable struct
 type Variable struct {
 	Token   token.Token // The VARIABLE token
 	Literal string
@@ -41,6 +36,31 @@ type IntegerLiteral struct {
 func (integerLiteral *IntegerLiteral) TokenLiteral() string { return integerLiteral.Token.Literal }
 func (integerLiteral *IntegerLiteral) String() string       { return integerLiteral.Token.Literal }
 func (integerLiteral *IntegerLiteral) expressionNode()      {}
+
+type PrefixExpression struct {
+	Token    token.Token // The prefix token: EXCLAMATION, MINUS
+	Operator string
+	Right    Expression
+}
+
+func (prefixExpression *PrefixExpression) TokenLiteral() string {
+	return prefixExpression.Token.Literal
+}
+func (prefixExpression *PrefixExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(prefixExpression.Operator)
+	out.WriteString(prefixExpression.Right.String())
+	out.WriteString(")")
+	return out.String()
+}
+func (prefixExpression *PrefixExpression) expressionNode() {}
+
+// A Statment is a type of node
+type Statement interface {
+	Node
+	statementNode()
+}
 
 // A LetStatment is a type of Statement
 type LetStatement struct {
