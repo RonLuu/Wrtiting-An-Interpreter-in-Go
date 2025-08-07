@@ -6,19 +6,19 @@ import (
 	"bytes"
 )
 
-// A node can be a Statement or an Expression
+// A Node can be a Statement or an Expression
 type Node interface {
 	TokenLiteral() string // A node must be able to return its token literal
 	String() string       // A node must have a string representation
 }
 
-// An Expression is a type of node
+// An Expression is a type of Node
 type Expression interface {
 	Node
 	expressionNode()
 }
 
-// Variable struct
+// A variable is a type of Expression
 type Variable struct {
 	Token   token.Token // The VARIABLE token
 	Literal string
@@ -28,6 +28,7 @@ func (variable *Variable) TokenLiteral() string { return variable.Token.Literal 
 func (variable *Variable) String() string       { return variable.Literal }
 func (variable *Variable) expressionNode()      {}
 
+// An Integer is a type of Expression
 type IntegerLiteral struct {
 	Token token.Token // The Integer token
 	Value int64
@@ -37,10 +38,11 @@ func (integerLiteral *IntegerLiteral) TokenLiteral() string { return integerLite
 func (integerLiteral *IntegerLiteral) String() string       { return integerLiteral.Token.Literal }
 func (integerLiteral *IntegerLiteral) expressionNode()      {}
 
+// A PrefixExpression is a type of Expression
 type PrefixExpression struct {
 	Token    token.Token // The prefix token: EXCLAMATION, MINUS
-	Operator string
-	Right    Expression
+	Operator string      // The prefix operator: "!", "-"
+	Right    Expression  // The right Expression: "!", "-"
 }
 
 func (prefixExpression *PrefixExpression) TokenLiteral() string {
@@ -56,11 +58,12 @@ func (prefixExpression *PrefixExpression) String() string {
 }
 func (prefixExpression *PrefixExpression) expressionNode() {}
 
+// An InfixExpression is a type of Expression
 type InfixExpression struct {
 	Token      token.Token // The infix token: PLUS, MINUS, MULTIPLICATION
-	LeftValue  Expression
-	Operator   string
-	RightValue Expression
+	LeftValue  Expression  // The left Expression
+	Operator   string      // The infix operator: "+", "-", "*", ...
+	RightValue Expression  // The right Expression
 }
 
 func (infixExpression *InfixExpression) TokenLiteral() string {
@@ -77,7 +80,7 @@ func (infixExpression *InfixExpression) String() string {
 }
 func (InfixExpression *InfixExpression) expressionNode() {}
 
-// A Statment is a type of node
+// A Statment is a type of Node
 type Statement interface {
 	Node
 	statementNode()
@@ -90,8 +93,6 @@ type LetStatement struct {
 	Expression Expression
 }
 
-// It includes statementNode and TokenLiteral
-func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 func (ls *LetStatement) String() string {
 	var out bytes.Buffer
@@ -108,6 +109,7 @@ func (ls *LetStatement) String() string {
 
 	return out.String()
 }
+func (ls *LetStatement) statementNode() {}
 
 // A ReturnStatement is a type of Statement
 type ReturnStatement struct {
@@ -115,8 +117,6 @@ type ReturnStatement struct {
 	ReturnValue Expression
 }
 
-// It includes statementNode and TokenLiteral
-func (rs *ReturnStatement) statementNode()       {}
 func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
 func (rs *ReturnStatement) String() string {
 	var out bytes.Buffer
@@ -129,6 +129,7 @@ func (rs *ReturnStatement) String() string {
 
 	return out.String()
 }
+func (rs *ReturnStatement) statementNode() {}
 
 // An ExpressionStatement is a type of Statement
 type ExpressionStatement struct {
