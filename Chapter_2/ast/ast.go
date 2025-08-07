@@ -56,6 +56,27 @@ func (prefixExpression *PrefixExpression) String() string {
 }
 func (prefixExpression *PrefixExpression) expressionNode() {}
 
+type InfixExpression struct {
+	Token      token.Token // The infix token: PLUS, MINUS, MULTIPLICATION
+	LeftValue  Expression
+	Operator   string
+	RightValue Expression
+}
+
+func (infixExpression *InfixExpression) TokenLiteral() string {
+	return infixExpression.Token.Literal
+}
+func (infixExpression *InfixExpression) String() string {
+	var out bytes.Buffer
+	out.WriteString("(")
+	out.WriteString(infixExpression.LeftValue.String())
+	out.WriteString(" " + infixExpression.Operator + " ")
+	out.WriteString(infixExpression.RightValue.String())
+	out.WriteString(")")
+	return out.String()
+}
+func (InfixExpression *InfixExpression) expressionNode() {}
+
 // A Statment is a type of node
 type Statement interface {
 	Node
