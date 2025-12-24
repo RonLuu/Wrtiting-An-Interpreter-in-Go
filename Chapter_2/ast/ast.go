@@ -82,9 +82,49 @@ func (boolean *Boolean) TokenLiteral() string { return boolean.Token.Literal }
 func (boolean *Boolean) expressionNode()      {}
 func (boolean *Boolean) String() string       { return boolean.Token.Literal }
 
+type IfExpression struct {
+	Token               token.Token // if token
+	ConditionExpression Expression
+	Consequence         *BlockStatement
+	Alternative         *BlockStatement
+}
+
+func (ifExpression *IfExpression) TokenLiteral() string { return ifExpression.Token.Literal }
+func (ifExpression *IfExpression) expressionNode()      {}
+func (ifExpression *IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if")
+	out.WriteString(ifExpression.ConditionExpression.String())
+	out.WriteString(" ")
+	out.WriteString(ifExpression.Consequence.String())
+
+	if ifExpression.Alternative != nil {
+		out.WriteString("else")
+		out.WriteString(ifExpression.Alternative.String())
+	}
+
+	return out.String()
+}
+
 type Statement interface {
 	Node
 	statementNode()
+}
+
+type BlockStatement struct {
+	Token      token.Token // {
+	Statements []Statement
+}
+
+func (blockStatement *BlockStatement) TokenLiteral() string { return blockStatement.Token.Literal }
+func (blockStatement *BlockStatement) statementNode()       {}
+func (blockStatement *BlockStatement) String() string {
+	var out bytes.Buffer
+	for _, s := range blockStatement.Statements {
+		out.WriteString(s.String())
+	}
+	return out.String()
 }
 
 // ExpressionStatement is a statement
