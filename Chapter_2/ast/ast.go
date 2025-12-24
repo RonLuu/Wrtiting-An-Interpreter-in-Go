@@ -42,7 +42,7 @@ func (integerLiteral *IntegerLiteral) expressionNode()      {}
 type PrefixExpression struct {
 	Token    token.Token // The prefix token: EXCLAMATION, MINUS
 	Operator string      // The prefix operator: "!", "-"
-	Right    Expression  // The right Expression: "!", "-"
+	Right    Expression  // The right Expression of the prefix expression
 }
 
 func (prefixExpression *PrefixExpression) TokenLiteral() string {
