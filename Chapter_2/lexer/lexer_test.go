@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"Chapter_2.5/token"
+	"Chapter_2/token"
 	"testing"
 )
 

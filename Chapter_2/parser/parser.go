@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"Chapter_2.5/ast"
-	"Chapter_2.5/lexer"
-	"Chapter_2.5/token"
+	"Chapter_2/ast"
+	"Chapter_2/lexer"
+	"Chapter_2/token"
 )
 
 const (
