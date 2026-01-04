@@ -71,6 +71,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	p.registerPrefix(token.FALSE, p.parseBooleanExpression)
 	p.registerPrefix(token.RLBRACKET, p.parseGroupedExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.FUNCTION, p.parseFunctionLiteral)
 
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
@@ -123,8 +124,6 @@ func (parser *Parser) ParseProgram() *ast.Program {
 	for parser.curToken.Type != token.EOF {
 		currentStatement := parser.parseStatement()
 		program.Statements = append(program.Statements, currentStatement)
-		// if currentStatement != nil {
-		// }
 		parser.nextToken()
 	}
 
@@ -282,6 +281,46 @@ func (parser *Parser) parseBlockStatement() *ast.BlockStatement {
 	}
 
 	return block
+}
+
+func (parser *Parser) parseFunctionLiteral() ast.Expression {
+	functionLiteral := &ast.FunctionLiteral{Token: parser.curToken}
+
+	if !parser.expectPeek(token.RLBRACKET) {
+		return nil
+	}
+
+	functionLiteral.Parameters = parser.parseFunctionParameters()
+
+	if !parser.expectPeek(token.PLBRACKET) {
+		return nil
+	}
+
+	functionLiteral.Body = parser.parseBlockStatement()
+
+	return functionLiteral
+}
+
+func (parser *Parser) parseFunctionParameters() []*ast.Identifier {
+	identifiers := []*ast.Identifier{}
+	if parser.peekTokenIs(token.RRBRACKET) {
+		parser.nextToken()
+		return identifiers
+	}
+
+	parser.nextToken()
+	identifier := &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
+	identifiers = append(identifiers, identifier)
+	for parser.peekTokenIs(token.COMMA) {
+		parser.nextToken()
+		parser.nextToken()
+		ident := &ast.Identifier{Token: parser.curToken, Value: parser.curToken.Literal}
+		identifiers = append(identifiers, ident)
+	}
+	if !parser.expectPeek(token.RRBRACKET) {
+		return nil
+	}
+	return identifiers
 }
 func (parser *Parser) noPrefixParseFnError(tokenType token.TokenType) {
 	msg := fmt.Sprintf("no prefix parse function for %s found", tokenType)
