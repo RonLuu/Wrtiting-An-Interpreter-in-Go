@@ -21,14 +21,15 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.EQ:    EQUALS,
-	token.NEQ:   EQUALS,
-	token.LT:    LESSGREATER,
-	token.GT:    LESSGREATER,
-	token.PLUS:  SUM,
-	token.MINUS: SUM,
-	token.DIV:   PRODUCT,
-	token.MULT:  PRODUCT,
+	token.EQ:        EQUALS,
+	token.NEQ:       EQUALS,
+	token.LT:        LESSGREATER,
+	token.GT:        LESSGREATER,
+	token.PLUS:      SUM,
+	token.MINUS:     SUM,
+	token.DIV:       PRODUCT,
+	token.MULT:      PRODUCT,
+	token.RLBRACKET: CALL,
 }
 
 type (
@@ -82,6 +83,7 @@ func NewParser(lexer *lexer.Lexer) *Parser {
 	p.registerInfix(token.LT, p.parseInfixExpression)
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NEQ, p.parseInfixExpression)
+	p.registerInfix(token.RLBRACKET, p.parseCallExpression)
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
 	p.nextToken()
@@ -321,6 +323,36 @@ func (parser *Parser) parseFunctionParameters() []*ast.Identifier {
 		return nil
 	}
 	return identifiers
+}
+
+func (parser *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+	exp := &ast.CallExpression{Token: parser.curToken, Function: function}
+	exp.Arguments = parser.parseCallArguments()
+	return exp
+}
+
+func (parser *Parser) parseCallArguments() []ast.Expression {
+	arguments := []ast.Expression{}
+
+	if parser.peekTokenIs(token.RRBRACKET) {
+		parser.nextToken()
+		return arguments
+	}
+
+	parser.nextToken()
+	arguments = append(arguments, parser.parseExpression(LOWEST))
+
+	for parser.peekTokenIs(token.COMMA) {
+		parser.nextToken()
+		parser.nextToken()
+		arguments = append(arguments, parser.parseExpression(LOWEST))
+	}
+
+	if !parser.expectPeek(token.RRBRACKET) {
+		return nil
+	}
+
+	return arguments
 }
 func (parser *Parser) noPrefixParseFnError(tokenType token.TokenType) {
 	msg := fmt.Sprintf("no prefix parse function for %s found", tokenType)

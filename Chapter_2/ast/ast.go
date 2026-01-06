@@ -130,6 +130,27 @@ func (fl *FunctionLiteral) String() string {
 	return out.String()
 }
 
+type CallExpression struct {
+	Token     token.Token // The '(' token
+	Function  Expression  // Identifier or FunctionLiteral
+	Arguments []Expression
+}
+
+func (callExpression *CallExpression) TokenLiteral() string { return callExpression.Token.Literal }
+func (callExpression *CallExpression) expressionNode()      {}
+func (callExpression *CallExpression) String() string {
+	var out bytes.Buffer
+	args := []string{}
+	for _, a := range callExpression.Arguments {
+		args = append(args, a.String())
+	}
+	out.WriteString(callExpression.Function.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(args, ", "))
+	out.WriteString(")")
+	return out.String()
+}
+
 type Statement interface {
 	Node
 	statementNode()
