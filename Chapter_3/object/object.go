@@ -1,0 +1,49 @@
+package object
+
+import (
+	"fmt"
+)
+
+const (
+	INTEGER_OBJ = "INTEGER64"
+	BOOLEAN_OBJ = "BOOLEAN"
+	NULL_OBJ    = "NULL"
+)
+
+type ObjectType string
+
+type Object interface {
+	Type() ObjectType
+	Inspect() string
+}
+
+type Integer struct {
+	Value int64
+}
+
+func (interger *Integer) Type() string {
+	return INTEGER_OBJ
+}
+func (integer *Integer) Inspect() string {
+	return fmt.Sprintf("%d", integer.Value)
+}
+
+type Boolean struct {
+	Value bool
+}
+
+func (boolean *Boolean) Type() string {
+	return BOOLEAN_OBJ
+}
+func (boolean *Boolean) Inspect() string {
+	return fmt.Sprintf("%t", boolean.Value)
+}
+
+type Null struct{}
+
+func (null *Null) Type() string {
+	return NULL_OBJ
+}
+func (null *Null) Inspect() string {
+	return "null"
+}
