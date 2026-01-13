@@ -21,7 +21,7 @@ type Integer struct {
 	Value int64
 }
 
-func (interger *Integer) Type() string {
+func (interger *Integer) Type() ObjectType {
 	return INTEGER_OBJ
 }
 func (integer *Integer) Inspect() string {
@@ -32,7 +32,7 @@ type Boolean struct {
 	Value bool
 }
 
-func (boolean *Boolean) Type() string {
+func (boolean *Boolean) Type() ObjectType {
 	return BOOLEAN_OBJ
 }
 func (boolean *Boolean) Inspect() string {
