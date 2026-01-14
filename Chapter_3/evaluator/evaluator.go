@@ -15,6 +15,10 @@ func Eval(node ast.Node) object.Object {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalStatements(node.Statements)
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
+	case *ast.IfExpression:
+		return evalIfExpression(node)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.IntegerLiteral:
@@ -121,4 +125,29 @@ func evalNegativeOperatorExpression(rightObject object.Object) object.Object {
 
 	value := rightObject.(*object.Integer).Value
 	return &object.Integer{Value: -value}
+}
+
+func evalIfExpression(ifExpression *ast.IfExpression) object.Object {
+	condition := Eval(ifExpression.ConditionExpression)
+
+	if isTruthy(condition) {
+		return Eval(ifExpression.Consequence)
+	} else if ifExpression.Alternative != nil {
+		return Eval(ifExpression.Alternative)
+	} else {
+		return NULL
+	}
+}
+
+func isTruthy(condition object.Object) bool {
+	switch condition {
+	case NULL:
+		return false
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	default:
+		return true
+	}
 }
